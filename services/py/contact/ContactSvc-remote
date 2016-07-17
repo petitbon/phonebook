@@ -28,6 +28,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print('  Contact read(string contactId)')
   print('  Contact update(Contact contact)')
   print('  void destroy(string contactId)')
+  print('   fetch()')
+  print('  void reset()')
   print('')
   sys.exit(0)
 
@@ -107,6 +109,18 @@ elif cmd == 'destroy':
     print('destroy requires 1 args')
     sys.exit(1)
   pp.pprint(client.destroy(args[0],))
+
+elif cmd == 'fetch':
+  if len(args) != 0:
+    print('fetch requires 0 args')
+    sys.exit(1)
+  pp.pprint(client.fetch())
+
+elif cmd == 'reset':
+  if len(args) != 0:
+    print('reset requires 0 args')
+    sys.exit(1)
+  pp.pprint(client.reset())
 
 else:
   print('Unrecognized method %s' % cmd)

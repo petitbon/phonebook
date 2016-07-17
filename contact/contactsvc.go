@@ -27,6 +27,8 @@ type ContactSvc interface {
 	// Parameters:
 	//  - ContactId
 	Destroy(contactId string) (err error)
+	Fetch() (r []*Contact, err error)
+	Reset() (err error)
 }
 
 type ContactSvcClient struct {
@@ -362,6 +364,151 @@ func (p *ContactSvcClient) recvDestroy() (err error) {
 	return
 }
 
+func (p *ContactSvcClient) Fetch() (r []*Contact, err error) {
+	if err = p.sendFetch(); err != nil {
+		return
+	}
+	return p.recvFetch()
+}
+
+func (p *ContactSvcClient) sendFetch() (err error) {
+	oprot := p.OutputProtocol
+	if oprot == nil {
+		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.OutputProtocol = oprot
+	}
+	p.SeqId++
+	if err = oprot.WriteMessageBegin("fetch", thrift.CALL, p.SeqId); err != nil {
+		return
+	}
+	args := ContactSvcFetchArgs{}
+	if err = args.Write(oprot); err != nil {
+		return
+	}
+	if err = oprot.WriteMessageEnd(); err != nil {
+		return
+	}
+	return oprot.Flush()
+}
+
+func (p *ContactSvcClient) recvFetch() (value []*Contact, err error) {
+	iprot := p.InputProtocol
+	if iprot == nil {
+		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.InputProtocol = iprot
+	}
+	method, mTypeId, seqId, err := iprot.ReadMessageBegin()
+	if err != nil {
+		return
+	}
+	if method != "fetch" {
+		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "fetch failed: wrong method name")
+		return
+	}
+	if p.SeqId != seqId {
+		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "fetch failed: out of sequence response")
+		return
+	}
+	if mTypeId == thrift.EXCEPTION {
+		error8 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error9 error
+		error9, err = error8.Read(iprot)
+		if err != nil {
+			return
+		}
+		if err = iprot.ReadMessageEnd(); err != nil {
+			return
+		}
+		err = error9
+		return
+	}
+	if mTypeId != thrift.REPLY {
+		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "fetch failed: invalid message type")
+		return
+	}
+	result := ContactSvcFetchResult{}
+	if err = result.Read(iprot); err != nil {
+		return
+	}
+	if err = iprot.ReadMessageEnd(); err != nil {
+		return
+	}
+	value = result.GetSuccess()
+	return
+}
+
+func (p *ContactSvcClient) Reset() (err error) {
+	if err = p.sendReset(); err != nil {
+		return
+	}
+	return p.recvReset()
+}
+
+func (p *ContactSvcClient) sendReset() (err error) {
+	oprot := p.OutputProtocol
+	if oprot == nil {
+		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.OutputProtocol = oprot
+	}
+	p.SeqId++
+	if err = oprot.WriteMessageBegin("reset", thrift.CALL, p.SeqId); err != nil {
+		return
+	}
+	args := ContactSvcResetArgs{}
+	if err = args.Write(oprot); err != nil {
+		return
+	}
+	if err = oprot.WriteMessageEnd(); err != nil {
+		return
+	}
+	return oprot.Flush()
+}
+
+func (p *ContactSvcClient) recvReset() (err error) {
+	iprot := p.InputProtocol
+	if iprot == nil {
+		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.InputProtocol = iprot
+	}
+	method, mTypeId, seqId, err := iprot.ReadMessageBegin()
+	if err != nil {
+		return
+	}
+	if method != "reset" {
+		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "reset failed: wrong method name")
+		return
+	}
+	if p.SeqId != seqId {
+		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "reset failed: out of sequence response")
+		return
+	}
+	if mTypeId == thrift.EXCEPTION {
+		error10 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error11 error
+		error11, err = error10.Read(iprot)
+		if err != nil {
+			return
+		}
+		if err = iprot.ReadMessageEnd(); err != nil {
+			return
+		}
+		err = error11
+		return
+	}
+	if mTypeId != thrift.REPLY {
+		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "reset failed: invalid message type")
+		return
+	}
+	result := ContactSvcResetResult{}
+	if err = result.Read(iprot); err != nil {
+		return
+	}
+	if err = iprot.ReadMessageEnd(); err != nil {
+		return
+	}
+	return
+}
+
 type ContactSvcProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
 	handler      ContactSvc
@@ -382,12 +529,14 @@ func (p *ContactSvcProcessor) ProcessorMap() map[string]thrift.TProcessorFunctio
 
 func NewContactSvcProcessor(handler ContactSvc) *ContactSvcProcessor {
 
-	self8 := &ContactSvcProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
-	self8.processorMap["create"] = &contactSvcProcessorCreate{handler: handler}
-	self8.processorMap["read"] = &contactSvcProcessorRead{handler: handler}
-	self8.processorMap["update"] = &contactSvcProcessorUpdate{handler: handler}
-	self8.processorMap["destroy"] = &contactSvcProcessorDestroy{handler: handler}
-	return self8
+	self12 := &ContactSvcProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
+	self12.processorMap["create"] = &contactSvcProcessorCreate{handler: handler}
+	self12.processorMap["read"] = &contactSvcProcessorRead{handler: handler}
+	self12.processorMap["update"] = &contactSvcProcessorUpdate{handler: handler}
+	self12.processorMap["destroy"] = &contactSvcProcessorDestroy{handler: handler}
+	self12.processorMap["fetch"] = &contactSvcProcessorFetch{handler: handler}
+	self12.processorMap["reset"] = &contactSvcProcessorReset{handler: handler}
+	return self12
 }
 
 func (p *ContactSvcProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -400,12 +549,12 @@ func (p *ContactSvcProcessor) Process(iprot, oprot thrift.TProtocol) (success bo
 	}
 	iprot.Skip(thrift.STRUCT)
 	iprot.ReadMessageEnd()
-	x9 := thrift.NewTApplicationException(thrift.UNKNOWN_METHOD, "Unknown function "+name)
+	x13 := thrift.NewTApplicationException(thrift.UNKNOWN_METHOD, "Unknown function "+name)
 	oprot.WriteMessageBegin(name, thrift.EXCEPTION, seqId)
-	x9.Write(oprot)
+	x13.Write(oprot)
 	oprot.WriteMessageEnd()
 	oprot.Flush()
-	return false, x9
+	return false, x13
 
 }
 
@@ -581,6 +730,99 @@ func (p *contactSvcProcessorDestroy) Process(seqId int32, iprot, oprot thrift.TP
 		return true, err2
 	}
 	if err2 = oprot.WriteMessageBegin("destroy", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type contactSvcProcessorFetch struct {
+	handler ContactSvc
+}
+
+func (p *contactSvcProcessorFetch) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ContactSvcFetchArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("fetch", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush()
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	result := ContactSvcFetchResult{}
+	var retval []*Contact
+	var err2 error
+	if retval, err2 = p.handler.Fetch(); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing fetch: "+err2.Error())
+		oprot.WriteMessageBegin("fetch", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush()
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("fetch", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type contactSvcProcessorReset struct {
+	handler ContactSvc
+}
+
+func (p *contactSvcProcessorReset) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ContactSvcResetArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("reset", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush()
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	result := ContactSvcResetResult{}
+	var err2 error
+	if err2 = p.handler.Reset(); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing reset: "+err2.Error())
+		oprot.WriteMessageBegin("reset", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush()
+		return true, err2
+	}
+	if err2 = oprot.WriteMessageBegin("reset", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -1334,4 +1576,281 @@ func (p *ContactSvcDestroyResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("ContactSvcDestroyResult(%+v)", *p)
+}
+
+type ContactSvcFetchArgs struct {
+}
+
+func NewContactSvcFetchArgs() *ContactSvcFetchArgs {
+	return &ContactSvcFetchArgs{}
+}
+
+func (p *ContactSvcFetchArgs) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err := iprot.Skip(fieldTypeId); err != nil {
+			return err
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *ContactSvcFetchArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("fetch_args"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *ContactSvcFetchArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ContactSvcFetchArgs(%+v)", *p)
+}
+
+// Attributes:
+//  - Success
+type ContactSvcFetchResult struct {
+	Success []*Contact `thrift:"success,0" json:"success,omitempty"`
+}
+
+func NewContactSvcFetchResult() *ContactSvcFetchResult {
+	return &ContactSvcFetchResult{}
+}
+
+var ContactSvcFetchResult_Success_DEFAULT []*Contact
+
+func (p *ContactSvcFetchResult) GetSuccess() []*Contact {
+	return p.Success
+}
+func (p *ContactSvcFetchResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ContactSvcFetchResult) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 0:
+			if err := p.readField0(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *ContactSvcFetchResult) readField0(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return thrift.PrependError("error reading list begin: ", err)
+	}
+	tSlice := make([]*Contact, 0, size)
+	p.Success = tSlice
+	for i := 0; i < size; i++ {
+		_elem14 := &Contact{}
+		if err := _elem14.Read(iprot); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", _elem14), err)
+		}
+		p.Success = append(p.Success, _elem14)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return thrift.PrependError("error reading list end: ", err)
+	}
+	return nil
+}
+
+func (p *ContactSvcFetchResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("fetch_result"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := p.writeField0(oprot); err != nil {
+		return err
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *ContactSvcFetchResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err := oprot.WriteFieldBegin("success", thrift.LIST, 0); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field begin error 0:success: ", p), err)
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Success)); err != nil {
+			return thrift.PrependError("error writing list begin: ", err)
+		}
+		for _, v := range p.Success {
+			if err := v.Write(oprot); err != nil {
+				return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", v), err)
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return thrift.PrependError("error writing list end: ", err)
+		}
+		if err := oprot.WriteFieldEnd(); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field end error 0:success: ", p), err)
+		}
+	}
+	return err
+}
+
+func (p *ContactSvcFetchResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ContactSvcFetchResult(%+v)", *p)
+}
+
+type ContactSvcResetArgs struct {
+}
+
+func NewContactSvcResetArgs() *ContactSvcResetArgs {
+	return &ContactSvcResetArgs{}
+}
+
+func (p *ContactSvcResetArgs) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err := iprot.Skip(fieldTypeId); err != nil {
+			return err
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *ContactSvcResetArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("reset_args"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *ContactSvcResetArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ContactSvcResetArgs(%+v)", *p)
+}
+
+type ContactSvcResetResult struct {
+}
+
+func NewContactSvcResetResult() *ContactSvcResetResult {
+	return &ContactSvcResetResult{}
+}
+
+func (p *ContactSvcResetResult) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err := iprot.Skip(fieldTypeId); err != nil {
+			return err
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *ContactSvcResetResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("reset_result"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *ContactSvcResetResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ContactSvcResetResult(%+v)", *p)
 }

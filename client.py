@@ -3,7 +3,7 @@
 import sys
 import uuid
 from datetime import datetime
-sys.path.append('services/py')
+sys.path.append("/Users/petitbon/Work/golang/src/github.com/petitbon/phonebook/services/py")
 
 from thrift.transport import TSocket, TTransport
 from thrift.protocol import TBinaryProtocol

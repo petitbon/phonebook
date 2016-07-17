@@ -24,6 +24,8 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "  Contact read(string contactId)")
 	fmt.Fprintln(os.Stderr, "  Contact update(Contact contact)")
 	fmt.Fprintln(os.Stderr, "  void destroy(string contactId)")
+	fmt.Fprintln(os.Stderr, "   fetch()")
+	fmt.Fprintln(os.Stderr, "  void reset()")
 	fmt.Fprintln(os.Stderr)
 	os.Exit(0)
 }
@@ -123,19 +125,19 @@ func main() {
 			fmt.Fprintln(os.Stderr, "Create requires 1 args")
 			flag.Usage()
 		}
-		arg10 := flag.Arg(1)
-		mbTrans11 := thrift.NewTMemoryBufferLen(len(arg10))
-		defer mbTrans11.Close()
-		_, err12 := mbTrans11.WriteString(arg10)
-		if err12 != nil {
+		arg15 := flag.Arg(1)
+		mbTrans16 := thrift.NewTMemoryBufferLen(len(arg15))
+		defer mbTrans16.Close()
+		_, err17 := mbTrans16.WriteString(arg15)
+		if err17 != nil {
 			Usage()
 			return
 		}
-		factory13 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt14 := factory13.GetProtocol(mbTrans11)
+		factory18 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt19 := factory18.GetProtocol(mbTrans16)
 		argvalue0 := contact.NewContact()
-		err15 := argvalue0.Read(jsProt14)
-		if err15 != nil {
+		err20 := argvalue0.Read(jsProt19)
+		if err20 != nil {
 			Usage()
 			return
 		}
@@ -158,19 +160,19 @@ func main() {
 			fmt.Fprintln(os.Stderr, "Update requires 1 args")
 			flag.Usage()
 		}
-		arg17 := flag.Arg(1)
-		mbTrans18 := thrift.NewTMemoryBufferLen(len(arg17))
-		defer mbTrans18.Close()
-		_, err19 := mbTrans18.WriteString(arg17)
-		if err19 != nil {
+		arg22 := flag.Arg(1)
+		mbTrans23 := thrift.NewTMemoryBufferLen(len(arg22))
+		defer mbTrans23.Close()
+		_, err24 := mbTrans23.WriteString(arg22)
+		if err24 != nil {
 			Usage()
 			return
 		}
-		factory20 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt21 := factory20.GetProtocol(mbTrans18)
+		factory25 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt26 := factory25.GetProtocol(mbTrans23)
 		argvalue0 := contact.NewContact()
-		err22 := argvalue0.Read(jsProt21)
-		if err22 != nil {
+		err27 := argvalue0.Read(jsProt26)
+		if err27 != nil {
 			Usage()
 			return
 		}
@@ -186,6 +188,22 @@ func main() {
 		argvalue0 := flag.Arg(1)
 		value0 := argvalue0
 		fmt.Print(client.Destroy(value0))
+		fmt.Print("\n")
+		break
+	case "fetch":
+		if flag.NArg()-1 != 0 {
+			fmt.Fprintln(os.Stderr, "Fetch requires 0 args")
+			flag.Usage()
+		}
+		fmt.Print(client.Fetch())
+		fmt.Print("\n")
+		break
+	case "reset":
+		if flag.NArg()-1 != 0 {
+			fmt.Fprintln(os.Stderr, "Reset requires 0 args")
+			flag.Usage()
+		}
+		fmt.Print(client.Reset())
 		fmt.Print("\n")
 		break
 	case "":
