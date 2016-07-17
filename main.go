@@ -1,6 +1,8 @@
 package main
 
-import phonebook "github.com/petitbon/phonebook"
+import (
+	"github.com/petitbon/phonebook/phonebook"
+)
 
 func main() {
 	host := "localhost:9090"
