@@ -3,9 +3,8 @@ package phonebook
 import (
 	"fmt"
 
-	"github.com/petitbon/phonebook/services/go/contact"
-
 	"git-wip-us.apache.org/repos/asf/thrift.git/lib/go/thrift"
+	contact "github.com/petitbon/phonebook/services/go/contact"
 )
 
 type PhonebookServer struct {

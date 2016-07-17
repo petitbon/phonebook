@@ -1,12 +1,10 @@
-// handler.go
-
 package phonebook
 
 import (
 	"fmt"
 	"sync"
 
-	"github.com/petitbon/phonebook/services/go/contact"
+	contact "github.com/petitbon/phonebook/services/go/contact"
 )
 
 type ContactHandler struct {
