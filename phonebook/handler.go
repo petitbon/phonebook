@@ -21,7 +21,7 @@ func NewContactHandler() *ContactHandler {
 func (ch *ContactHandler) Create(contact *contact.Contact) (*contact.Contact, error) {
 	ch.Lock()
 	defer ch.Unlock()
-	ch.contacts[contact.Id] = contact
+	ch.contacts[contact.ID] = contact
 	return contact, nil
 }
 
@@ -36,7 +36,7 @@ func (ch *ContactHandler) Read(contactId string) (*contact.Contact, error) {
 func (ch *ContactHandler) Update(contact *contact.Contact) (*contact.Contact, error) {
 	ch.Lock()
 	defer ch.Unlock()
-	ch.contacts[contact.Id] = contact
+	ch.contacts[contact.ID] = contact
 	return contact, nil
 }
 
