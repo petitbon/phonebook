@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/petitbon/phonebook/contact"
+	"github.com/petitbon/phonebook/services/go/contact"
 )
 
 type ContactHandler struct {

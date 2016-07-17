@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"git-wip-us.apache.org/repos/asf/thrift.git/lib/go/thrift"
-	"github.com/petitbon/phonebook/contact"
+	"github.com/petitbon/phonebook/services/go/contact"
 )
 
 type PhonebookServer struct {
